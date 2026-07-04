@@ -65,6 +65,22 @@ export async function handleRouting() {
     viewport.innerHTML = await renderSearchPage(query, type);
     setTimeout(() => window.scrollTo(0, 0), 0);
 
+    // ✅ Wire up search input after render
+    const searchPageInput = document.querySelector("#search-page-input");
+    if (searchPageInput) {
+      searchPageInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const q = searchPageInput.value.trim();
+          const t = document.querySelector("#search-type-select")?.value || "all";
+          if (q) {
+            window.history.pushState(null, null, `/search?q=${encodeURIComponent(q)}&type=${encodeURIComponent(t)}`);
+            handleRouting();
+          }
+        }
+      });
+    }
+
   } else if (episodeRouteMatch) {
     const seriesId = parseInt(episodeRouteMatch[1], 10);
     const seasonNumber = parseInt(episodeRouteMatch[2], 10);
@@ -100,7 +116,6 @@ export async function handleRouting() {
     viewport.innerHTML = renderPageLoader();
     viewport.innerHTML = await viewGenerator(searchParams);
 
-    // FIX: init watchlist page events after rendering
     if (currentPath === "/watchlist") {
       initWatchlistPageEvents();
     }

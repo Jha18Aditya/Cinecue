@@ -259,7 +259,6 @@ renderAuthNavigationState();
   // ==========================================
   document.body.addEventListener("click", async (e) => {
     const avatarLink = e.target.closest(".account-avatar-link");
-    console.log("click target:", e.target, "avatarLink:", avatarLink);
     if (avatarLink) {
       e.preventDefault();
       e.stopPropagation();
