@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineCue</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial,sans-serif' font-size='32' font-weight='800' fill='%23f97316'%3EC%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <nav class="nav-bar">
+        <a href="/" class="nav-logo nav-link">Cine<span>Cue</span></a>
+
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="nav-links">
+           <div id="auth-status-container" class="auth-nav-wrapper"></div>
+          <a href="/" class="nav-link">Home</a>
+          <a href="/movies" class="nav-link">Movies</a>
+          <a href="/series" class="nav-link">Series</a>
+          <a href="/genres" class="nav-link">Genres</a>
+        </div>
+
+        <button
+          class="mobile-search-toggle"
+          type="button"
+          aria-label="Open search"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+        </button>
+
+        <form class="search-wrapper" id="search-form">
+          <div class="search-combo">
+            <label class="sr-only" for="global-search-type-select"
+              >Search filter</label
+            >
+            <input
+              id="global-search-type-select"
+              class="search-filter-value"
+              type="hidden"
+              value="all"
+            />
+            <div class="custom-filter-select" data-search-filter>
+              <button
+                class="filter-select-button"
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+              >
+                <span>All</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m6 9 6 6 6-6"></path>
+                </svg>
+              </button>
+              <div class="filter-select-menu" role="listbox">
+                <button
+                  class="filter-select-option is-selected"
+                  type="button"
+                  data-value="all"
+                  role="option"
+                  aria-selected="true"
+                >
+                  All
+                </button>
+                <button
+                  class="filter-select-option"
+                  type="button"
+                  data-value="movie"
+                  role="option"
+                  aria-selected="false"
+                >
+                  Movies
+                </button>
+                <button
+                  class="filter-select-option"
+                  type="button"
+                  data-value="tv"
+                  role="option"
+                  aria-selected="false"
+                >
+                  Series
+                </button>
+                <button
+                  class="filter-select-option"
+                  type="button"
+                  data-value="person"
+                  role="option"
+                  aria-selected="false"
+                >
+                  People
+                </button>
+              </div>
+            </div>
+            <input
+              type="text"
+              id="global-search-input"
+              placeholder="Search movies, series, or people"
+              autocomplete="off"
+            />
+          </div>
+          <div id="search-dropdown-results" class="search-dropdown hidden"></div>
+        </form>
+
+        
+        <!-- Desktop only avatar — sits after search -->
+<div id="auth-status-desktop" class="auth-nav-wrapper-desktop"></div>
+      </nav>
+    </header>
+
+    <main id="app-viewport"></main>
+
+    <footer class="app-footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <span class="logo">Cine<span>Cue</span></span>
+            <p>
+              Hyper-curated, community-ranked recommendations for movie and
+              series lovers.
+            </p>
+          </div>
+        </div>
+
+        <hr class="footer-divider" />
+
+        <div class="footer-bottom">
+          <p class="copyright">
+            &copy; 2026 CineCue. Built for portfolio practice.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
