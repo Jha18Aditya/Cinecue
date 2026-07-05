@@ -5,7 +5,7 @@ const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 export async function search(query, type) {
   const response = await fetch(
-    `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&query=${encodeURIComponent(query)}&language=en-US`,
+    `/api/tmdb/search/${type}?api_key=${tmdbApiKey}&query=${encodeURIComponent(query)}&language=en-US`,
   );
   const data = await response.json();
   return data.results || [];

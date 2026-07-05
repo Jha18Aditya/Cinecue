@@ -35,10 +35,10 @@ export async function renderDetailsPage(movieId) {
 
   const [movieResponse, creditsResponse] = await Promise.all([
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&append_to_response=videos,watch/providers`,
+      `/api/tmdb/movie/${movieId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&append_to_response=videos,watch/providers`,
     ),
     fetch(
-      `https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+      `/api/tmdb/movie/${movieId}/credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
     ),
   ]);
   const movieData = await movieResponse.json();
@@ -226,7 +226,7 @@ export async function renderRecommendationGrid(movieId) {
 
   if (loadedTmdbMovieRecommendations.length === 0) {
     const response = await fetch(
-      `https://api.themoviedb.org/3/movie/${movieIdInt}/recommendations?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&page=1`,
+      `/api/tmdb/movie/${movieIdInt}/recommendations?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&page=1`,
     );
     const data = await response.json();
     loadedTmdbMovieRecommendations = data.results || [];
