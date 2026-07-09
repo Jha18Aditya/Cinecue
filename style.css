@@ -2355,4 +2355,70 @@ img {
   }
 }
 
+@media (max-width: 720px) {
+  /* Fix episode hero height */
+  .episode-detail-hero {
+    min-height: unset;
+  }
 
+  .episode-detail-hero .hero-content {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .episode-detail-hero .hero-backdrop {
+    max-height: 300px;
+  }
+
+  .episode-still-poster {
+    width: 100%;
+    max-height: 220px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .episode-still-poster img {
+    width: 100%;
+    height: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 520px) {
+  .episode-detail-hero {
+    min-height: unset;
+  }
+
+  .episode-still-poster {
+    max-height: 180px;
+  }
+
+  .episode-still-poster img {
+    max-height: 180px;
+  }
+
+  .episode-detail-hero .hero-content {
+    padding: 0.75rem;
+  }
+
+  .episode-detail-hero .hero-title {
+    font-size: 1.4rem;
+  }
+
+  .episode-detail-hero .hero-meta {
+    gap: 0.3rem;
+  }
+
+  .episode-detail-hero .badge {
+    font-size: 0.78rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .episode-detail-hero .hero-description {
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+}
