@@ -5,7 +5,7 @@ const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 export async function search(query, type) {
   const response = await fetch(
-    `/api/tmdb/search/${type}?api_key=${tmdbApiKey}&query=${encodeURIComponent(query)}&language=en-US`,
+    `https://api.themoviedb.org/3/search/${type}?api_key=${tmdbApiKey}&query=${encodeURIComponent(query)}&language=en-US`,
   );
   const data = await response.json();
   return data.results || [];
@@ -68,7 +68,7 @@ export async function renderSearchPage(query, type = "all") {
         <h1 class="page-heading">Search</h1>
       </div>
       ${searchFormHTML}
-      <section class="results-section">
+      <section class="results-section" id="search-page-results">
         ${!query ? '<p class="empty-state">Please enter a search term to find movies, TV shows, and people.</p>' : ''}
       </section>
     </div>
@@ -76,70 +76,83 @@ export async function renderSearchPage(query, type = "all") {
 }
 
 export async function updateSearchResults(query, type = "all") {
-  const resultsContainer = document.querySelector('.results-section');
+  const resultsContainer = document.querySelector("#search-page-results");
   if (!resultsContainer) return;
-  
+
   if (!query) {
     resultsContainer.innerHTML = '<p class="empty-state">Please enter a search term to find movies, TV shows, and people.</p>';
     return;
   }
-  
+
   resultsContainer.innerHTML = `
-    <div class="page-loader-wrap">
-      <div class="page-loader cinematic-loader">
-        <span class="film-reel" aria-hidden="true">
-          <i></i><i></i><i></i><i></i>
-        </span>
-        <span>Searching the watchlist for "${query}"...</span>
-      </div>
+    <div class="page-loader cinematic-loader" role="status" aria-live="polite" style="min-height: 200px">
+      <span class="film-reel" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </span>
+      <span>Finding something worth watching...</span>
     </div>
   `;
 
-  const activeType = normalizeFilterType(type);
-  const results =
-    activeType === "all"
-      ? (
-          await Promise.all([
-            search(query, "movie").then((items) => items.map((item) => ({ ...item, media_type: "movie" }))),
-            search(query, "tv").then((items) => items.map((item) => ({ ...item, media_type: "tv" }))),
-            search(query, "person").then((items) => items.map((item) => ({ ...item, media_type: "person" }))),
-          ])
-        ).flat()
-      : (await search(query, activeType)).map((item) => ({
-          ...item,
-          media_type: activeType,
-        }));
+  try {
+    const activeType = normalizeFilterType(type);
+    const results = await search(query, activeType === "all" ? "multi" : activeType);
+    
+    // Check if the input value has changed while we were fetching
+    const currentInput = document.querySelector("#search-page-input");
+    if (currentInput && currentInput.value.trim() !== query) return;
 
-  const currentInput = document.querySelector("#search-page-input");
-  if (currentInput && currentInput.value.trim() !== query) return;
-
-  resultsContainer.innerHTML = `
-    <div class="section-title-row">
-      <h2 class="section-heading">Results for "${query}"</h2>
-      <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
-    </div>
-    <div class="movies-grid">
-      ${results.length > 0 ? results.map((item) => {
-        if (item.media_type === "person") {
+    resultsContainer.innerHTML = `
+      <div class="section-title-row" style="justify-content: flex-start; gap: 1rem; border-bottom: none; align-items: center;">
+        <h2 class="section-heading" style="margin-bottom: 0;">Results for "${query}"</h2>
+        <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
+      </div>
+      <div class="movies-grid">
+        ${results.length > 0 ? results.map((item) => {
+          if (item.media_type === "person") {
+            return `
+              <a href="/person/${item.id}" class="movie-card nav-link">
+                <div class="poster-wrapper">
+                  <img src="${tmdbImage(item.profile_path)}" alt="${item.name}" loading="lazy" />
+                  <div class="card-overlay">
+                    <span class="view-btn">View Profile</span>
+                  </div>
+                </div>
+                <div class="card-info">
+                  <h3>${item.name}</h3>
+                  <div class="card-meta">
+                    <span class="meta-item">Person</span>
+                  </div>
+                </div>
+              </a>
+            `;
+          }
           return `
-            <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
-              <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
-              <div class="cast-info">
-                <h4>${item.name}</h4>
-                <p>${item.known_for_department || "Person"}</p>
+            <a href="/${item.media_type === "tv" ? "series" : "movie"}/${item.id}" class="movie-card nav-link">
+              <div class="poster-wrapper">
+                <img src="${tmdbImage(item.poster_path)}" alt="${item.title || item.name}" loading="lazy" />
+                <div class="rating-badge">
+                  <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+                  ${(item.vote_average || 0).toFixed(1)}
+                </div>
+                <div class="card-overlay">
+                  <span class="view-btn">View Details</span>
+                </div>
+              </div>
+              <div class="card-info">
+                <h3>${item.title || item.name}</h3>
+                <div class="card-meta">
+                  <span class="meta-item">${item.release_date ? item.release_date.substring(0, 4) : item.first_air_date ? item.first_air_date.substring(0, 4) : "N/A"}</span>
+                  <span class="meta-dot"></span>
+                  <span class="meta-item">${item.media_type === "tv" ? "Series" : "Movie"}</span>
+                </div>
               </div>
             </a>
           `;
-        }
-        return MovieCard({
-          id: item.id,
-          title: item.title || item.name,
-          year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
-          rating: item.vote_average,
-          poster: tmdbImage(item.poster_path),
-          isSeries: item.media_type === "tv",
-        });
-      }).join("") : '<p class="empty-state">No results found.</p>'}
-    </div>
-  `;
+        }).join("") : `<p class="empty-state">No results found for "${query}" in ${activeType === "all" ? "all media" : activeType}.</p>`}
+      </div>
+    `;
+  } catch (error) {
+    console.error("Search error:", error);
+    resultsContainer.innerHTML = `<p class="empty-state" style="color: var(--error);">Error performing search. Please try again.</p>`;
+  }
 }

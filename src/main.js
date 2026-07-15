@@ -257,6 +257,138 @@ renderAuthNavigationState();
   // ==========================================
   // 🎮 3. MASTER CLICK EVENT DELEGATION LISTENER
   // ==========================================
+  
+  // Form: submit delegation
+  document.body.addEventListener("submit", async (e) => {
+    if (e.target.classList.contains("search-page-form")) {
+      e.preventDefault();
+      const inputField = e.target.querySelector("#search-page-input");
+      if (inputField) inputField.blur();
+      return;
+    }
+
+    if (e.target.id === "add-rec-form") {
+      e.preventDefault();
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      try {
+        submitBtn.innerHTML = `<span class="loader-spinner" aria-hidden="true"></span><span>Adding...</span>`;
+        submitBtn.disabled = true;
+
+        const url = new URL(window.location.href);
+        const sourceId = url.pathname.split("/")[2];
+        const mediaType = url.pathname.startsWith("/movie") ? "movie" : "tv";
+        const titleInput = document.getElementById("rec-title");
+        const commentInput = document.getElementById("rec-comment");
+
+        const targetData = JSON.parse(titleInput.dataset.selectedRec);
+        
+        await insertCloudRecommendation({
+          source_id: sourceId,
+          source_type: mediaType,
+          target_id: targetData.id,
+          target_type: targetData.media_type,
+          comment: commentInput.value.trim(),
+        });
+
+        // Close modal and refresh local grid
+        const modal = e.target.closest(".modal-overlay");
+        if (modal) {
+          modal.remove();
+          document.body.style.overflow = "";
+        }
+        
+        if (mediaType === "movie") {
+          await renderMovieRecommendationGrid(sourceId);
+        } else {
+          await renderSeriesRecommendationGrid(sourceId);
+        }
+      } catch (error) {
+        console.error("Error adding recommendation:", error);
+        alert("Failed to add recommendation. Please ensure you are logged in.");
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+      return;
+    }
+  });
+
+  // Input: live search delegation
+  document.body.addEventListener("input", (e) => {
+    if (e.target.id === "search-page-input") {
+      const query = e.target.value.trim();
+      const type = document.querySelector("#search-type-select")?.value || "all";
+      
+      // Update URL silently
+      window.history.replaceState(null, null, `/search?q=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`);
+      
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        updateSearchResults(query, type);
+      }, 400);
+    }
+    
+    // Add Recommendation Modal Live Search
+    if (e.target.id === "rec-title") {
+      const query = e.target.value.trim();
+      const searchResultsEl = document.getElementById("rec-search-results");
+      
+      clearTimeout(recommendationDebounceTimer);
+      
+      if (!query || query.length < 2) {
+        searchResultsEl.innerHTML = "";
+        searchResultsEl.classList.remove("active");
+        e.target.removeAttribute("data-selected-rec");
+        return;
+      }
+
+      recommendationDebounceTimer = setTimeout(async () => {
+        try {
+          const results = await search(query, "multi");
+          if (e.target.value.trim() !== query) return;
+          
+          if (results.length > 0) {
+            searchResultsEl.innerHTML = results.slice(0, 5).map(item => {
+              if (item.media_type === "person") return ""; // Skip people for recommendations
+              const title = item.title || item.name;
+              const date = item.release_date || item.first_air_date;
+              const year = date ? date.split("-")[0] : "";
+              const poster = tmdbImage(item.poster_path, "w92");
+              return `
+                <button type="button" class="rec-search-item" data-rec='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
+                  <img src="${poster}" alt="" width="40" height="60" />
+                  <div class="rec-search-info">
+                    <span class="rec-search-title">${title}</span>
+                    <span class="rec-search-year">${year} • ${item.media_type === "movie" ? "Movie" : "Series"}</span>
+                  </div>
+                </button>
+              `;
+            }).join("");
+            searchResultsEl.classList.add("active");
+          } else {
+            searchResultsEl.innerHTML = '<div class="rec-search-empty">No matches found</div>';
+            searchResultsEl.classList.add("active");
+          }
+        } catch (err) {
+          console.error("Rec search error:", err);
+        }
+      }, 350);
+    }
+  });
+
+  document.body.addEventListener("change", (e) => {
+    if (e.target.id === "search-type-select") {
+      const type = e.target.value;
+      const query = document.querySelector("#search-page-input")?.value.trim() || "";
+      
+      // Update URL silently
+      window.history.replaceState(null, null, `/search?q=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}`);
+      
+      updateSearchResults(query, type);
+    }
+  });
+
   document.body.addEventListener("click", async (e) => {
     const avatarLink = e.target.closest(".account-avatar-link");
     if (avatarLink) {

@@ -38,12 +38,12 @@ export async function renderSeriesDetailsPage(seriesId) {
   activePageCommunityRecs = []; // ✅ ADD: reset on page load
 
   const response = await fetch(
-    `/api/tmdb/tv/${seriesId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&append_to_response=watch/providers,videos`,
+    `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&append_to_response=watch/providers,videos`,
   );
   const seriesData = await response.json();
 
   const creditsResponse = await fetch(
-    `/api/tmdb/tv/${seriesId}/credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+    `https://api.themoviedb.org/3/tv/${seriesId}/credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
   );
   const creditsData = await creditsResponse.json();
   const cast = (creditsData.cast || []).slice(0, 10);
@@ -229,7 +229,7 @@ export async function renderRecommendationGrid(seriesId) {
 
   if (loadedTmdbSeriesRecommendations.length === 0) {
     const response = await fetch(
-      `/api/tmdb/tv/${seriesIdInt}/recommendations?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&page=1`,
+      `https://api.themoviedb.org/3/tv/${seriesIdInt}/recommendations?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US&page=1`,
     );
     const data = await response.json();
     loadedTmdbSeriesRecommendations = data.results || [];

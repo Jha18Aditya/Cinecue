@@ -1506,7 +1506,7 @@ body.is-home .mobile-search-toggle { display: none !important; }
 /* ============================================================
    SEARCH PAGE
    ============================================================ */
-.search-page-form { margin-bottom: 2rem; }
+.search-page-form { margin-bottom: 2rem; position: relative; z-index: 200; }
 .search-page-form .search-combo { max-width: 680px; margin: 0 auto; }
 
 /* ============================================================
