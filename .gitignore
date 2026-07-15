@@ -1,6 +1,7 @@
 .env
 node_modules
 dist
+docpdf
 .agents
 CINECUE_DETAILED_FUNCTIONS.md
 CINECUE_DOCUMENTATION.md

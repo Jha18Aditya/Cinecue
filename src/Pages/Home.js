@@ -1,5 +1,6 @@
 import { MovieCard } from "../components/MovieCard.js";
 import { tmdbImage } from "../utils/images.js";
+import { navigateTo } from "../router.js";
 
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -46,13 +47,69 @@ export async function buildMediaRow(title, endpoint, options = {}) {
 }
 
 export async function renderHomePage() {
+  // Fetch a trending movie backdrop for the hero background
+  let heroBackdrop = "";
+  try {
+    const trendingRes = await fetch(buildApiUrl("trending/all/day"));
+    const trendingData = await trendingRes.json();
+    const topResult = (trendingData.results || []).find((r) => r.backdrop_path);
+    if (topResult) {
+      heroBackdrop = tmdbImage(topResult.backdrop_path, "original");
+    }
+  } catch (e) {
+    // silent fallback — hero will just have gradient
+  }
+
   const [trendingRow, theatersRow, masterpiecesRow] = await Promise.all([
     buildMediaRow("Trending Now", "trending/all/day", { kicker: "Movies and series people are watching" }),
     buildMediaRow("In Theaters Now", "movie/now_playing", { kicker: "Fresh releases" }),
     buildMediaRow("Top Rated Masterpieces", "movie/top_rated", { kicker: "Critic favorites" }),
   ]);
 
+  // Wire up the home hero search bar after render
+  setTimeout(() => {
+    const heroForm = document.getElementById("home-search-form");
+    const heroInput = document.getElementById("home-search-input");
+    if (heroForm && heroInput) {
+      heroForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = heroInput.value.trim();
+        if (q) {
+          navigateTo(`/search?q=${encodeURIComponent(q)}&type=all`);
+        }
+      });
+    }
+  }, 0);
+
   return `
+    <section class="home-hero">
+      <div class="home-hero-backdrop" style="background-image: url('${heroBackdrop}')"></div>
+      <div class="home-hero-overlay"></div>
+      <div class="home-hero-content">
+        <h1 class="home-hero-title">
+          Your Next Favorite Movie,<br/>
+          <span>Found by People.</span>
+        </h1>
+        <p class="home-hero-subtitle">
+          Escape the algorithm. Discover cinema through human emotion
+          and community expertise.
+        </p>
+        <form class="home-hero-search" id="home-search-form">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-3.5-3.5"></path>
+          </svg>
+          <input
+            type="text"
+            id="home-search-input"
+            placeholder="Search movies, series, or people..."
+            autocomplete="off"
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </section>
+
     <div class="container page-stack">
       ${trendingRow}
       ${theatersRow}

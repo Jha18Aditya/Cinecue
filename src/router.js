@@ -44,6 +44,9 @@ export async function handleRouting() {
 
   window.scrollTo(0, 0);
 
+  // Toggle home-page class for CSS-based search bar hiding
+  document.body.classList.toggle("is-home", currentPath === "/");
+
   const movieRouteMatch = currentPath.match(/^\/movie\/(\d+)$/);
   const seriesRouteMatch = currentPath.match(/^\/series\/(\d+)$/);
   const seasonRouteMatch = currentPath.match(/^\/series\/(\d+)\/season\/(\d+)$/);
