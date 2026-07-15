@@ -187,6 +187,8 @@ Deployed on Vercel with automatic deploys triggered on every `git push` to the `
 ## Screenshots
 
 <img width="1871" height="862" alt="image" src="https://github.com/user-attachments/assets/581d6a4a-2f85-4ab4-af81-83b909d3c249" />
+
+
 <img width="1388" height="846" alt="image" src="https://github.com/user-attachments/assets/b2ffcbbc-816d-4f00-ad8a-7f3b2ec94eab" />
 
 
