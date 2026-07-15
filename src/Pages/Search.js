@@ -110,44 +110,23 @@ export async function updateSearchResults(query, type = "all") {
         ${results.length > 0 ? results.map((item) => {
           if (item.media_type === "person") {
             return `
-              <a href="/person/${item.id}" class="movie-card nav-link">
-                <div class="poster-wrapper">
-                  <img src="${tmdbImage(item.profile_path)}" alt="${item.name}" loading="lazy" />
-                  <div class="card-overlay">
-                    <span class="view-btn">View Profile</span>
-                  </div>
-                </div>
-                <div class="card-info">
-                  <h3>${item.name}</h3>
-                  <div class="card-meta">
-                    <span class="meta-item">Person</span>
-                  </div>
+              <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
+                <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
+                <div class="cast-info">
+                  <h4>${item.name}</h4>
+                  <p>${item.known_for_department || "Person"}</p>
                 </div>
               </a>
             `;
           }
-          return `
-            <a href="/${item.media_type === "tv" ? "series" : "movie"}/${item.id}" class="movie-card nav-link">
-              <div class="poster-wrapper">
-                <img src="${tmdbImage(item.poster_path)}" alt="${item.title || item.name}" loading="lazy" />
-                <div class="rating-badge">
-                  <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
-                  ${(item.vote_average || 0).toFixed(1)}
-                </div>
-                <div class="card-overlay">
-                  <span class="view-btn">View Details</span>
-                </div>
-              </div>
-              <div class="card-info">
-                <h3>${item.title || item.name}</h3>
-                <div class="card-meta">
-                  <span class="meta-item">${item.release_date ? item.release_date.substring(0, 4) : item.first_air_date ? item.first_air_date.substring(0, 4) : "N/A"}</span>
-                  <span class="meta-dot"></span>
-                  <span class="meta-item">${item.media_type === "tv" ? "Series" : "Movie"}</span>
-                </div>
-              </div>
-            </a>
-          `;
+          return MovieCard({
+            id: item.id,
+            title: item.title || item.name,
+            year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
+            rating: item.vote_average,
+            poster: tmdbImage(item.poster_path),
+            isSeries: item.media_type === "tv",
+          });
         }).join("") : `<p class="empty-state">No results found for "${query}" in ${activeType === "all" ? "all media" : activeType}.</p>`}
       </div>
     `;
