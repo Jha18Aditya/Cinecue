@@ -19,7 +19,7 @@ import {
   removeLocalRecommendationById as removeSeriesLocalRecommendationById,
 } from "./Pages/seriesDetails.js";
 import { navigateTo, handleRouting, addRoute } from "./router.js";
-import { search } from "./Pages/Search.js";
+import { search, updateSearchResults } from "./Pages/Search.js";
 import { tmdbImage } from "./utils/images.js";
 import { toggleWatchlist, loadWatchlistFromCloud } from "./utils/watchlist.js";
 import { getRandomLightColor } from "./utils/colors.js";
@@ -603,8 +603,23 @@ renderAuthNavigationState();
     }
   });
 
-  // Input: recommendation search typeahead
+  // Input: recommendation search typeahead & live search page
   document.body.addEventListener("input", (e) => {
+    if (e.target.id === "search-page-input") {
+      const query = e.target.value.trim();
+      const select = document.querySelector("#search-type-select");
+      const type = select?.value || "all";
+      
+      const newUrl = query ? `/search?q=${encodeURIComponent(query)}&type=${type}` : `/search`;
+      window.history.replaceState(null, "", newUrl);
+      
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        updateSearchResults(query, type);
+      }, 350);
+      return;
+    }
+
     if (e.target.id !== "rec-title-input") return;
     const inputField = e.target;
     const form =
@@ -646,8 +661,15 @@ renderAuthNavigationState();
     }, 350);
   });
 
-  // Form: add recommendation submit
+  // Form: submit delegation
   document.body.addEventListener("submit", async (e) => {
+    if (e.target.classList.contains("search-page-form")) {
+      e.preventDefault();
+      const inputField = e.target.querySelector("#search-page-input");
+      if (inputField) inputField.blur();
+      return;
+    }
+
     if (e.target.id === "add-rec-form") {
       e.preventDefault();
       const inputField = document.querySelector("#rec-title-input");

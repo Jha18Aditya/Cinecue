@@ -58,17 +58,33 @@ export async function renderSearchPage(query, type = "all") {
     </form>
   `;
 
-  if (!query) {
-    return `
-      <div class="container page-stack">
-        <h1 class="page-heading">Search</h1>
-        ${searchFormHTML}
-        <p class="empty-state">Please enter a search term to find movies, TV shows, and people.</p>
-      </div>
-    `;
+  if (query) {
+    setTimeout(() => updateSearchResults(query, activeType), 0);
   }
 
-  const loadingHTML = `
+  return `
+    <div class="container page-stack">
+      <div class="section-title-row">
+        <h1 class="page-heading">Search</h1>
+      </div>
+      ${searchFormHTML}
+      <section class="results-section">
+        ${!query ? '<p class="empty-state">Please enter a search term to find movies, TV shows, and people.</p>' : ''}
+      </section>
+    </div>
+  `;
+}
+
+export async function updateSearchResults(query, type = "all") {
+  const resultsContainer = document.querySelector('.results-section');
+  if (!resultsContainer) return;
+  
+  if (!query) {
+    resultsContainer.innerHTML = '<p class="empty-state">Please enter a search term to find movies, TV shows, and people.</p>';
+    return;
+  }
+  
+  resultsContainer.innerHTML = `
     <div class="page-loader-wrap">
       <div class="page-loader cinematic-loader">
         <span class="film-reel" aria-hidden="true">
@@ -79,19 +95,7 @@ export async function renderSearchPage(query, type = "all") {
     </div>
   `;
 
-  // Render loading state immediately
-  document.querySelector('#app-viewport').innerHTML = `
-    <div class="container page-stack">
-      <div class="section-title-row">
-        <h1 class="page-heading">Search</h1>
-      </div>
-      ${searchFormHTML}
-      <section class="results-section">
-        ${loadingHTML}
-      </section>
-    </div>
-  `;
-
+  const activeType = normalizeFilterType(type);
   const results =
     activeType === "all"
       ? (
@@ -106,41 +110,36 @@ export async function renderSearchPage(query, type = "all") {
           media_type: activeType,
         }));
 
-  return `
-    <div class="container page-stack">
-      <div class="section-title-row">
-        <h1 class="page-heading">Search</h1>
-      </div>
-      ${searchFormHTML}
-      <section class="results-section">
-        <div class="section-title-row">
-          <h2 class="section-heading">Results for "${query}"</h2>
-          <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
-        </div>
-        <div class="movies-grid">
-          ${results.length > 0 ? results.map((item) => {
-            if (item.media_type === "person") {
-              return `
-                <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
-                  <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
-                  <div class="cast-info">
-                    <h4>${item.name}</h4>
-                    <p>${item.known_for_department || "Person"}</p>
-                  </div>
-                </a>
-              `;
-            }
-            return MovieCard({
-              id: item.id,
-              title: item.title || item.name,
-              year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
-              rating: item.vote_average,
-              poster: tmdbImage(item.poster_path),
-              isSeries: item.media_type === "tv",
-            });
-          }).join("") : '<p class="empty-state">No results found.</p>'}
-        </div>
-      </section>
+  const currentInput = document.querySelector("#search-page-input");
+  if (currentInput && currentInput.value.trim() !== query) return;
+
+  resultsContainer.innerHTML = `
+    <div class="section-title-row">
+      <h2 class="section-heading">Results for "${query}"</h2>
+      <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
+    </div>
+    <div class="movies-grid">
+      ${results.length > 0 ? results.map((item) => {
+        if (item.media_type === "person") {
+          return `
+            <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
+              <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
+              <div class="cast-info">
+                <h4>${item.name}</h4>
+                <p>${item.known_for_department || "Person"}</p>
+              </div>
+            </a>
+          `;
+        }
+        return MovieCard({
+          id: item.id,
+          title: item.title || item.name,
+          year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
+          rating: item.vote_average,
+          poster: tmdbImage(item.poster_path),
+          isSeries: item.media_type === "tv",
+        });
+      }).join("") : '<p class="empty-state">No results found.</p>'}
     </div>
   `;
 }
