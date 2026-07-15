@@ -105,7 +105,7 @@ export async function updateSearchResults(query, type = "all") {
 
     let html = `
       <div class="section-title-row" style="justify-content: flex-start; gap: 1rem; border-bottom: none; align-items: center;">
-        <h2 class="section-heading" style="margin-bottom: 0;">Results for "${query}"</h2>
+        <h2 class="section-heading" style="margin-bottom: 0;">Results for <u>${query}</u></h2>
         <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
       </div>
     `;
@@ -135,7 +135,7 @@ export async function updateSearchResults(query, type = "all") {
       
       html += `<div class="movies-grid">${cardsHtml}</div>`;
     } else {
-      html += `<p class="empty-state" style="margin-top: 2rem;">No results found for "${query}" in ${activeType === "all" ? "all media" : activeType}.</p>`;
+      html += `<p class="empty-state" style="margin-top: 2rem;">No results found for <u>${query}</u> in ${activeType === "all" ? "all media" : activeType}.</p>`;
     }
 
     resultsContainer.innerHTML = html;
