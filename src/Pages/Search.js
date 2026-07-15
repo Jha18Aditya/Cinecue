@@ -85,11 +85,13 @@ export async function updateSearchResults(query, type = "all") {
   }
 
   resultsContainer.innerHTML = `
-    <div class="page-loader cinematic-loader" role="status" aria-live="polite" style="min-height: 200px">
-      <span class="film-reel" aria-hidden="true">
-        <i></i><i></i><i></i><i></i>
-      </span>
-      <span>Finding something worth watching...</span>
+    <div class="page-loader-wrap">
+      <div class="page-loader cinematic-loader" role="status" aria-live="polite">
+        <span class="film-reel" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span>Finding something worth watching...</span>
+      </div>
     </div>
   `;
 
@@ -101,35 +103,42 @@ export async function updateSearchResults(query, type = "all") {
     const currentInput = document.querySelector("#search-page-input");
     if (currentInput && currentInput.value.trim() !== query) return;
 
-    resultsContainer.innerHTML = `
+    let html = `
       <div class="section-title-row" style="justify-content: flex-start; gap: 1rem; border-bottom: none; align-items: center;">
         <h2 class="section-heading" style="margin-bottom: 0;">Results for "${query}"</h2>
         <span class="section-kicker">${activeType === "all" ? "All media" : activeType === "tv" ? "Series" : activeType === "person" ? "People" : "Movies"}</span>
       </div>
-      <div class="movies-grid">
-        ${results.length > 0 ? results.map((item) => {
-          if (item.media_type === "person") {
-            return `
-              <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
-                <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
-                <div class="cast-info">
-                  <h4>${item.name}</h4>
-                  <p>${item.known_for_department || "Person"}</p>
-                </div>
-              </a>
-            `;
-          }
-          return MovieCard({
-            id: item.id,
-            title: item.title || item.name,
-            year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
-            rating: item.vote_average,
-            poster: tmdbImage(item.poster_path),
-            isSeries: item.media_type === "tv",
-          });
-        }).join("") : `<p class="empty-state">No results found for "${query}" in ${activeType === "all" ? "all media" : activeType}.</p>`}
-      </div>
     `;
+
+    if (results.length > 0) {
+      const cardsHtml = results.map((item) => {
+        if (item.media_type === "person") {
+          return `
+            <a href="/person/${item.id}" class="cast-card nav-link" data-id="${item.id}">
+              <img src="${tmdbImage(item.profile_path, "w185")}" alt="${item.name}" loading="lazy" />
+              <div class="cast-info">
+                <h4>${item.name}</h4>
+                <p>${item.known_for_department || "Person"}</p>
+              </div>
+            </a>
+          `;
+        }
+        return MovieCard({
+          id: item.id,
+          title: item.title || item.name,
+          year: (item.release_date || item.first_air_date || "").split("-")[0] || "N/A",
+          rating: item.vote_average,
+          poster: tmdbImage(item.poster_path),
+          isSeries: item.media_type === "tv",
+        });
+      }).join("");
+      
+      html += `<div class="movies-grid">${cardsHtml}</div>`;
+    } else {
+      html += `<p class="empty-state" style="margin-top: 2rem;">No results found for "${query}" in ${activeType === "all" ? "all media" : activeType}.</p>`;
+    }
+
+    resultsContainer.innerHTML = html;
   } catch (error) {
     console.error("Search error:", error);
     resultsContainer.innerHTML = `<p class="empty-state" style="color: var(--error);">Error performing search. Please try again.</p>`;
