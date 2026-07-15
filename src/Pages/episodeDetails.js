@@ -3,7 +3,7 @@ import { formatRuntime } from "../utils/time.js";
 
 export async function renderEpisodeDetailsPage(seriesId, seasonNumber, episodeNumber) {
   const response = await fetch(
-    `https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+    `/api/tmdb/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
   );
   const episode = await response.json();
 

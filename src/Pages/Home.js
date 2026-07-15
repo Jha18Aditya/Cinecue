@@ -6,7 +6,7 @@ const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 function buildApiUrl(endpoint) {
   const separator = endpoint.includes("?") ? "&" : "?";
-  return `https://api.themoviedb.org/3/${endpoint}${separator}api_key=${tmdbApiKey}&language=en-US&page=1`;
+  return `/api/tmdb/${endpoint}${separator}api_key=${tmdbApiKey}&language=en-US&page=1`;
 }
 
 function buildCards(results, isSeries = false) {

@@ -15,13 +15,13 @@ function formatReadableDate(rawDate, prefix) {
 export async function renderPersonDetailsPage(personId) {
   const [personResponse, creditsResponse, externalIdsResponse] = await Promise.all([
     fetch(
-      `https://api.themoviedb.org/3/person/${personId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+      `/api/tmdb/person/${personId}?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
     ),
     fetch(
-      `https://api.themoviedb.org/3/person/${personId}/combined_credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+      `/api/tmdb/person/${personId}/combined_credits?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
     ),
     fetch(
-      `https://api.themoviedb.org/3/person/${personId}/external_ids?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
+      `/api/tmdb/person/${personId}/external_ids?api_key=${import.meta.env.VITE_TMDB_API_KEY}&language=en-US`,
     ),
   ]);
 
