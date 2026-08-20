@@ -1,6 +1,7 @@
 import { fallbackPoster, tmdbImage } from "../utils/images.js";
 import { formatRuntime } from "../utils/time.js";
 import { isInWatchlist } from "../utils/watchlist.js";
+import { getProviderUrl } from "../utils/providerLinks.js";
 import { getCloudRecommendations } from "../services/supabase.js";
 
 let visibleRecommendationsCount = 5;
@@ -146,12 +147,15 @@ export async function renderDetailsPage(movieId) {
           <div class="provider-row">
             ${uniqueProviders
               .map(
-                (provider) => `
-                  ${providerLink ? `<a class="provider-pill provider-link" href="${providerLink}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${movieData.title} on ${provider.provider_name}">` : `<span class="provider-pill" aria-label="${provider.provider_name}">`}
+                (provider) => {
+                  const providerUrl = getProviderUrl(provider, movieData.title, providerLink);
+                  return `
+                  ${providerUrl ? `<a class="provider-pill provider-link" href="${providerUrl}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${movieData.title} on ${provider.provider_name}">` : `<span class="provider-pill" aria-label="${provider.provider_name}">`}
                     <img src="${tmdbImage(provider.logo_path, "w92")}" alt="${provider.provider_name}" loading="lazy" />
                     <span>${provider.provider_name}</span>
-                  ${providerLink ? "</a>" : "</span>"}
-                `,
+                  ${providerUrl ? "</a>" : "</span>"}
+                `;
+                },
               )
               .join("")}
           </div>

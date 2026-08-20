@@ -1,6 +1,7 @@
 import { fallbackPoster, tmdbImage } from "../utils/images.js";
 import { formatRuntimeList } from "../utils/time.js";
 import { isInWatchlist } from "../utils/watchlist.js";
+import { getProviderUrl } from "../utils/providerLinks.js";
 import {
   getCloudRecommendations,
   normalizeCloudRecommendation,
@@ -132,12 +133,15 @@ export async function renderSeriesDetailsPage(seriesId) {
           <div class="provider-row">
             ${uniqueProviders
               .map(
-                (provider) => `
-                  ${providerLink ? `<a class="provider-pill provider-link" href="${providerLink}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${seriesData.name} on ${provider.provider_name}">` : `<span class="provider-pill" aria-label="${provider.provider_name}">`}
+                (provider) => {
+                  const providerUrl = getProviderUrl(provider, seriesData.name, providerLink);
+                  return `
+                  ${providerUrl ? `<a class="provider-pill provider-link" href="${providerUrl}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${seriesData.name} on ${provider.provider_name}">` : `<span class="provider-pill" aria-label="${provider.provider_name}">`}
                     <img src="${tmdbImage(provider.logo_path, "w92")}" alt="${provider.provider_name}" loading="lazy" />
                     <span>${provider.provider_name}</span>
-                  ${providerLink ? "</a>" : "</span>"}
-                `,
+                  ${providerUrl ? "</a>" : "</span>"}
+                `;
+                },
               )
               .join("")}
           </div>
