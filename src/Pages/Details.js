@@ -83,7 +83,6 @@ export async function renderDetailsPage(movieId) {
   const watchProviders = preferredRegion
     ? providersByRegion[preferredRegion] || {}
     : {};
-  const providerLink = watchProviders.link || "";
   const providerGroups = [
     watchProviders.flatrate || [],
     watchProviders.buy || [],
@@ -148,7 +147,7 @@ export async function renderDetailsPage(movieId) {
             ${uniqueProviders
               .map(
                 (provider) => {
-                  const providerUrl = getProviderUrl(provider, movieData.title, providerLink);
+                  const providerUrl = getProviderUrl(provider, movieData.title);
                   return `
                   ${providerUrl ? `<a class="provider-pill provider-link" href="${providerUrl}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${movieData.title} on ${provider.provider_name}">` : `<span class="provider-pill" aria-label="${provider.provider_name}">`}
                     <img src="${tmdbImage(provider.logo_path, "w92")}" alt="${provider.provider_name}" loading="lazy" />
