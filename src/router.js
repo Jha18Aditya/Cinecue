@@ -44,7 +44,6 @@ export async function handleRouting() {
 
   window.scrollTo(0, 0);
 
-  // Toggle home-page class for CSS-based search bar hiding
   document.body.classList.toggle("is-home", currentPath === "/");
 
   const movieRouteMatch = currentPath.match(/^\/movie\/(\d+)$/);
@@ -68,7 +67,7 @@ export async function handleRouting() {
     viewport.innerHTML = await renderSearchPage(query, type);
     setTimeout(() => window.scrollTo(0, 0), 0);
 
-    // ✅ Wire up search input after render
+  
     const searchPageInput = document.querySelector("#search-page-input");
     if (searchPageInput) {
       searchPageInput.addEventListener("keydown", (e) => {

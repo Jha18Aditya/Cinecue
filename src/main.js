@@ -29,9 +29,6 @@ import { getRandomLightColor } from "./utils/colors.js";
   let statusToastTimer;
   let voteInProgress = false;
 
-  // ==========================================
-  // 🔐 1. GOOGLE OAUTH HASH FRAGMENT PARSER
-  // ==========================================
   const parseAuthSessionFromHash = () => {
     const hashValue = window.location.hash;
     if (hashValue && hashValue.includes("access_token=")) {
@@ -62,8 +59,7 @@ import { getRandomLightColor } from "./utils/colors.js";
   const loggedUserName = getDisplayNameFromEmail(loggedUserEmail);
   ensureStatusToast();
 
-  // ==========================================
-  // 🎨 2. DYNAMIC AUTH HEADER UI ENGINE
+
 
 const renderAuthNavigationState = () => {
   const authContainer = document.querySelector("#auth-status-container");
