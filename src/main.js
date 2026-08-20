@@ -254,62 +254,6 @@ renderAuthNavigationState();
   // 🎮 3. MASTER CLICK EVENT DELEGATION LISTENER
   // ==========================================
   
-  // Form: submit delegation
-  document.body.addEventListener("submit", async (e) => {
-    if (e.target.classList.contains("search-page-form")) {
-      e.preventDefault();
-      const inputField = e.target.querySelector("#search-page-input");
-      if (inputField) inputField.blur();
-      return;
-    }
-
-    if (e.target.id === "add-rec-form") {
-      e.preventDefault();
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      try {
-        submitBtn.innerHTML = `<span class="loader-spinner" aria-hidden="true"></span><span>Adding...</span>`;
-        submitBtn.disabled = true;
-
-        const url = new URL(window.location.href);
-        const sourceId = url.pathname.split("/")[2];
-        const mediaType = url.pathname.startsWith("/movie") ? "movie" : "tv";
-        const titleInput = document.getElementById("rec-title");
-        const commentInput = document.getElementById("rec-comment");
-
-        const targetData = JSON.parse(titleInput.dataset.selectedRec);
-        
-        await insertCloudRecommendation({
-          source_id: sourceId,
-          source_type: mediaType,
-          target_id: targetData.id,
-          target_type: targetData.media_type,
-          comment: commentInput.value.trim(),
-        });
-
-        // Close modal and refresh local grid
-        const modal = e.target.closest(".modal-overlay");
-        if (modal) {
-          modal.remove();
-          document.body.style.overflow = "";
-        }
-        
-        if (mediaType === "movie") {
-          await renderMovieRecommendationGrid(sourceId);
-        } else {
-          await renderSeriesRecommendationGrid(sourceId);
-        }
-      } catch (error) {
-        console.error("Error adding recommendation:", error);
-        alert("Failed to add recommendation. Please ensure you are logged in.");
-      } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      }
-      return;
-    }
-  });
-
   // Input: live search delegation
   document.body.addEventListener("input", (e) => {
     if (e.target.id === "search-page-input") {
